@@ -1,0 +1,4 @@
+DROP TABLE IF EXISTS refresh_tokens CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
+
+DROP TABLE IF EXISTS flyway_schema_history CASCADE;
