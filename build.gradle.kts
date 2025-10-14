@@ -22,6 +22,8 @@ dependencies {
     // Spring Boot
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-security")
+    implementation("org.springframework.cloud:spring-cloud-starter-openfeign:4.0.2")
+
 
     // Kafka
     implementation("org.springframework.kafka:spring-kafka")
@@ -37,10 +39,6 @@ dependencies {
 
     // Test
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-
-    //Migration
-    implementation("org.flywaydb:flyway-core")
-    runtimeOnly("org.flywaydb:flyway-database-postgresql:11.8.0")
 }
 
 
