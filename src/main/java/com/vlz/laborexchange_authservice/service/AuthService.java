@@ -35,7 +35,12 @@ public class AuthService {
     }
 
     public String login(LoginRequest request) {
-        //TODO сделать проверку и генирацию токена
-        return null;
+        if(!userServiceClient.checkLogin(request)){
+            log.error("Invalid login request");
+            throw new IllegalStateException("Invalid login request");
+        }
+
+        log.info("login request: {}", request.getEmail());
+        return jwtService.generateToken(request.getEmail());
     }
 }
