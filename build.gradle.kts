@@ -1,12 +1,11 @@
 plugins {
     java
-    id("org.springframework.boot") version "3.5.6"
+    id("org.springframework.boot") version "3.3.6"
     id("io.spring.dependency-management") version "1.1.7"
 }
 
 group = "com.vlz"
 version = "0.0.1-SNAPSHOT"
-description = "LaborExchange_AuthService"
 
 java {
     toolchain {
@@ -18,15 +17,25 @@ repositories {
     mavenCentral()
 }
 
+dependencyManagement {
+    imports {
+        mavenBom("org.springframework.cloud:spring-cloud-dependencies:2023.0.3")
+    }
+}
+
 dependencies {
     // Spring Boot
     implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("org.springframework.boot:spring-boot-starter-security")
-    implementation("org.springframework.cloud:spring-cloud-starter-openfeign:4.0.2")
+    implementation("com.fasterxml.jackson.core:jackson-databind")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
+    //implementation("org.springframework.boot:spring-boot-starter-security")
 
+    // Feign
+    implementation("org.springframework.cloud:spring-cloud-starter-openfeign")
 
     // Kafka
     implementation("org.springframework.kafka:spring-kafka")
+    implementation("com.fasterxml.jackson.core:jackson-databind")
 
     // JWT
     implementation("io.jsonwebtoken:jjwt-api:0.11.5")
@@ -40,7 +49,6 @@ dependencies {
     // Test
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
-
 
 tasks.withType<Test> {
     useJUnitPlatform()

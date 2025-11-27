@@ -3,7 +3,9 @@ package com.vlz.laborexchange_authservice.client;
 import com.vlz.laborexchange_authservice.dto.LoginRequest;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @FeignClient(
         name = "user-service",
@@ -11,9 +13,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 )
 public interface UserServiceClient {
 
-    @GetMapping("/api/users/existsByEmail/")
-    boolean existsUserByEmail(@RequestBody String email);
+    @GetMapping("/api/users/existsByEmail")
+    boolean existsUserByEmail(@RequestParam("email") String email);
 
-    @GetMapping("/api/users/checkLogin/")
-    boolean checkLogin(LoginRequest request);
+    @PostMapping("/api/users/checkLogin")
+    boolean checkLogin(@RequestBody LoginRequest request);
 }
