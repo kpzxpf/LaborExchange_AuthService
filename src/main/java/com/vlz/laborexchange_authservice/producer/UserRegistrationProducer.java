@@ -1,7 +1,6 @@
 package com.vlz.laborexchange_authservice.producer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.vlz.laborexchange_authservice.dto.LoginRequest;
 import com.vlz.laborexchange_authservice.dto.RegisterRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
