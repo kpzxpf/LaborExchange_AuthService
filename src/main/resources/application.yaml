@@ -2,6 +2,9 @@ server:
   port: 8081
 
 spring:
+  application:
+    name: auth-service
+
   kafka:
     bootstrap-servers: localhost:9092
     topics:
@@ -15,3 +18,9 @@ clients:
 jwt:
   secret: "supersecretkeyforjwtinjobexchange"
   expiration: 3600000
+
+  logging:
+    level:
+      org.springframework.cloud.gateway: INFO
+      com.vlz: DEBUG
+
