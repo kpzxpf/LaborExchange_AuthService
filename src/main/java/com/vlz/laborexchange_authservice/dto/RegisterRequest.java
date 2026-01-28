@@ -31,4 +31,11 @@ public class RegisterRequest {
     @NotBlank(message = "Password is required.")
     @Size(min = 8, max = 64, message = "Password must be between 8 and 64 characters.")
     private String password;
+
+    @NotBlank(message = "Role is required.")
+    @Pattern(
+            regexp = "^(JOB_SEEKER|EMPLOYER)$",
+            message = "The role must be JOB_SEEKER (looking for a job) or EMPLOYER (looking for employees)."
+    )
+    private String userRole;
 }

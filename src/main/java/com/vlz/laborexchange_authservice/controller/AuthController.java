@@ -2,7 +2,7 @@ package com.vlz.laborexchange_authservice.controller;
 
 import com.vlz.laborexchange_authservice.dto.LoginRequest;
 import com.vlz.laborexchange_authservice.dto.RegisterRequest;
-import com.vlz.laborexchange_authservice.dto.ResponseAuth;
+import com.vlz.laborexchange_authservice.dto.AuthResponse;
 import com.vlz.laborexchange_authservice.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -19,19 +19,19 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<ResponseAuth> register(@RequestBody RegisterRequest request) {
+    public ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest request) {
         String token = authService.register(request);
 
-        return ResponseEntity.ok(ResponseAuth.builder()
+        return ResponseEntity.ok(AuthResponse.builder()
                 .token(token)
                 .build());
     }
 
     @PostMapping("/login")
-    public ResponseEntity<ResponseAuth> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
         String token = authService.login(request);
 
-        return ResponseEntity.ok(ResponseAuth.builder()
+        return ResponseEntity.ok(AuthResponse.builder()
                 .token(token)
                 .build());
     }
