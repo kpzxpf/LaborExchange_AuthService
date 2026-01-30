@@ -5,6 +5,10 @@ spring:
   application:
     name: auth-service
 
+  retry:
+    maxAttempts: 3
+    backoff-delay: 2000
+
   kafka:
     bootstrap-servers: localhost:9092
     topics:
@@ -16,7 +20,7 @@ clients:
     url: http://localhost:8082
 
 jwt:
-  secret: "supersecretkeyforjwtinjobexchange"
+  secret: ${jwt.secret}
   expiration: 3600000
 
   logging:

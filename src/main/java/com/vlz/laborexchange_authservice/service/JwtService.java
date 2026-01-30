@@ -1,17 +1,20 @@
 package com.vlz.laborexchange_authservice.service;
 
-import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Function;
 
 @Service
+@Slf4j
 public class JwtService {
 
     @Value("${jwt.secret}")
@@ -21,76 +24,36 @@ public class JwtService {
     private long expiration;
 
     public String generateToken(String email, Long userId, String userRole) {
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("userId", userId);
-        claims.put("role", userRole);
-        claims.put("userRole", userRole);
-
         return Jwts.builder()
-                .setClaims(claims)
                 .setSubject(email)
+                .claim("userId", userId)
+                .claim("role", userRole)
+                .claim("userRole", userRole)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expiration))
-                .signWith(SignatureAlgorithm.HS256, secret.getBytes())
+                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
-    }
-
-    public String generateToken(String email) {
-        return generateToken(email, null, null);
-    }
-
-    public String extractEmail(String token) {
-        return extractClaim(token, Claims::getSubject);
-    }
-
-    public Long extractUserId(String token) {
-        Claims claims = extractAllClaims(token);
-        Object userIdObj = claims.get("userId");
-        if (userIdObj instanceof Integer) {
-            return ((Integer) userIdObj).longValue();
-        }
-        return (Long) userIdObj;
-    }
-
-    public String extractUserRole(String token) {
-        Claims claims = extractAllClaims(token);
-        Object role = claims.get("role");
-        if (role == null) {
-            role = claims.get("userRole");
-        }
-        return role != null ? role.toString() : null;
-    }
-
-    public Date extractExpiration(String token) {
-        return extractClaim(token, Claims::getExpiration);
-    }
-
-    public Boolean validateToken(String token, String email) {
-        final String extractedEmail = extractEmail(token);
-        return (extractedEmail.equals(email) && !isTokenExpired(token));
     }
 
     public Boolean validateToken(String token) {
         try {
-            return !isTokenExpired(token);
+            Jwts.parserBuilder()
+                    .setSigningKey(getSigningKey())
+                    .build()
+                    .parseClaimsJws(token);
+            return true;
+        } catch (ExpiredJwtException e) {
+            log.warn("Token expired");
+        } catch (MalformedJwtException e) {
+            log.error("Invalid token format");
         } catch (Exception e) {
-            return false;
+            log.error("Token validation error: {}", e.getMessage());
         }
+        return false;
     }
 
-    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-        final Claims claims = extractAllClaims(token);
-        return claimsResolver.apply(claims);
-    }
-
-    private Claims extractAllClaims(String token) {
-        return Jwts.parser()
-                .setSigningKey(secret.getBytes())
-                .parseClaimsJws(token)
-                .getBody();
-    }
-
-    private Boolean isTokenExpired(String token) {
-        return extractExpiration(token).before(new Date());
+    private SecretKey getSigningKey() {
+        byte[] keyBytes = secret.getBytes(StandardCharsets.UTF_8);
+        return Keys.hmacShaKeyFor(keyBytes);
     }
 }

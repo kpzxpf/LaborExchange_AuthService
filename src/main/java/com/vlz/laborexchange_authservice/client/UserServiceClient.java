@@ -18,4 +18,7 @@ public interface UserServiceClient {
 
     @PostMapping("/api/users/checkLogin")
     boolean checkLogin(@RequestBody LoginRequest request);
+
+    @GetMapping("/api/users/userIdByEmail")
+    Long getUserIdByEmail(@RequestParam("email") String email);
 }
