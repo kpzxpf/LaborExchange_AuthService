@@ -5,8 +5,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @FeignClient(
-        name = "${clients.user-service.name}",
-        url = "${clients.user-service.url}"
+        name = "${spring.clients.role-service.name}",
+        url = "${spring.clients.role-service.url}"
 )
 public interface RoleServiceClient {
     @GetMapping("/api/roles/roleByEmail")

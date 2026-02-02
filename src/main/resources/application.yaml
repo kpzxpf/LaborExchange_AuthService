@@ -14,17 +14,19 @@ spring:
     topics:
       user-registration: user-registration
 
-clients:
-  user-service:
-    name: user-service
-    url: http://localhost:8082
-
-jwt:
-  secret: ${jwt.secret}
-  expiration: 3600000
-
+  clients:
+    user-service:
+      name: user-service
+      url: http://localhost:8082
+    role-service:
+      name: role-service
+      url: http://localhost:8082
   logging:
     level:
       org.springframework.cloud.gateway: INFO
       com.vlz: DEBUG
+
+  jwt:
+    secret: ${secret-jwt-key}
+    expiration: 3600000
 
