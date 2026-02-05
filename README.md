@@ -539,13 +539,6 @@ Please read [CONTRIBUTING.md](../CONTRIBUTING.md) for details on our code of con
 
 This service is part of the LaborExchange project and is licensed under the MIT License.
 
-## 📞 Support
-
-- 📧 Email: auth-support@laborexchange.com
-- 💬 Slack: #auth-service
-- 🐛 Issues: [GitHub Issues](https://github.com/yourusername/laborexchange/issues)
-
----
 
 <div align="center">
 
