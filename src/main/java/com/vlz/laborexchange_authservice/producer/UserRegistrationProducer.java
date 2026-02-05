@@ -20,5 +20,6 @@ public class UserRegistrationProducer extends AbstractProducer<RegisterRequest> 
 
     public void send(RegisterRequest event) {
         super.sendMessage(userRegistrationTopicName, event);
+        log.info("Sending user registration event: {}", event);
     }
 }

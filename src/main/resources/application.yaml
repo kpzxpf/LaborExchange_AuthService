@@ -5,6 +5,9 @@ spring:
   application:
     name: auth-service
 
+  profiles:
+    default: local
+
   retry:
     maxAttempts: 3
     backoff-delay: 2000
@@ -21,6 +24,7 @@ spring:
     role-service:
       name: role-service
       url: http://localhost:8082
+
   logging:
     level:
       org.springframework.cloud.gateway: INFO
