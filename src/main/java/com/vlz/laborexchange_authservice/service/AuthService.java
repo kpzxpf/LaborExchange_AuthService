@@ -32,7 +32,7 @@ public class AuthService {
     public String login(LoginRequest request) {
         String email = request.getEmail();
 
-        if (userRetryClient.checkLogin(request)) {
+        if (!userRetryClient.checkLogin(request)) {
             log.error("Invalid login request");
             throw new IllegalStateException("Invalid login request");
         }
