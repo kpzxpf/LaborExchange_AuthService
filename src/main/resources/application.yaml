@@ -34,3 +34,79 @@ spring:
     secret: ${secret-jwt-key}
     expiration: 3600000
 
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
+    display-request-duration: true
+  api-docs:
+    path: /v3/api-docs
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: when-authorized
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 30s
+        failureRateThreshold: 50
+        eventConsumerBufferSize: 10
+    instances:
+      userService:
+        baseConfig: default
+      vacancyService:
+        baseConfig: default
+        waitDurationInOpenState: 15s
+      resumeService:
+        baseConfig: default
+      skillService:
+        baseConfig: default
+      companyService:
+        baseConfig: default
+
+  timelimiter:
+    configs:
+      default:
+        timeoutDuration: 3s
+        cancelRunningFuture: true
+    instances:
+      userService:
+        baseConfig: default
+      vacancyService:
+        timeoutDuration: 5s
+      resumeService:
+        baseConfig: default
+      skillService:
+        timeoutDuration: 2s
+
+  retry:
+    configs:
+      default:
+        maxAttempts: 3
+        waitDuration: 500ms
+        retryExceptions:
+          - feign.FeignException.ServiceUnavailable
+          - java.net.ConnectException
+    instances:
+      userService:
+        baseConfig: default
+      vacancyService:
+        baseConfig: default
+

@@ -1,6 +1,7 @@
 package com.vlz.laborexchange_authservice.service;
 
 import com.vlz.laborexchange_authservice.client.RoleServiceClient;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.retry.annotation.Backoff;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Component;
 public class RoleRetryClient {
     private final RoleServiceClient roleServiceClient;
 
+    @CircuitBreaker(name = "userService", fallbackMethod = "getUserRoleByEmailFallback")
     @Retryable(
             retryFor = { Exception.class },
             maxAttemptsExpression = "${spring.retry.maxAttempts:3}",
@@ -21,6 +23,11 @@ public class RoleRetryClient {
     )
     public String getUserRoleByEmail(String email) {
         return roleServiceClient.getUserRoleByEmail(email);
+    }
+
+    public String getUserRoleByEmailFallback(String email, Exception e) {
+        log.warn("UserService circuit breaker open for getUserRoleByEmail, email={}: {}", email, e.getMessage());
+        throw new RuntimeException("User Service is currently unavailable. Please try again later.");
     }
 
     @Recover

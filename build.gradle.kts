@@ -29,6 +29,7 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-databind")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-aop")
+    implementation("io.github.resilience4j:resilience4j-spring-boot3:2.2.0")
 
     // Feign
     implementation("org.springframework.cloud:spring-cloud-starter-openfeign")
@@ -47,6 +48,12 @@ dependencies {
     annotationProcessor("org.projectlombok:lombok")
 
     implementation("com.github.loki4j:loki-logback-appender:1.5.0")
+
+    // OpenAPI
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0")
+
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("io.micrometer:micrometer-registry-prometheus")
 
     // Test
     testImplementation("org.springframework.boot:spring-boot-starter-test")
