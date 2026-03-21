@@ -25,6 +25,9 @@ jobs:
 
       - name: Build and Test with Gradle
         run: ./gradlew build
+        env:
+          SPRING_KAFKA_BOOTSTRAP_SERVERS: localhost:9092
+          LOKI_ENABLED: "false"
 
       - name: Upload Build Artifact
         if: success()

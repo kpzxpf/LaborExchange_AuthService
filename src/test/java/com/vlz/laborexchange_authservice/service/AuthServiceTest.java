@@ -2,24 +2,6 @@ package com.vlz.laborexchange_authservice.service;
 
 import com.vlz.laborexchange_authservice.dto.LoginRequest;
 import com.vlz.laborexchange_authservice.dto.RegisterRequest;
-import com.vlz.laborexchange_authservice.producer.UserRegistrationProducer;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-
-import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -29,21 +11,13 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class AuthServiceTest {
 
     @Mock private JwtService jwtService;
-    @Mock private UserRegistrationProducer userRegistrationProducer;
     @Mock private UserRetryClient userRetryClient;
     @Mock private RoleRetryClient roleRetryClient;
 
@@ -60,9 +34,8 @@ class AuthServiceTest {
     class RegisterTests {
 
         @Test
-        @DisplayName("Успех: создание через Builder и отправка в Producer")
+        @DisplayName("Успех: регистрация через REST и получение токена")
         void register_Success() {
-            // Используем Builder для создания запроса
             RegisterRequest request = RegisterRequest.builder()
                     .email(EMAIL)
                     .password("secure_pass")
@@ -70,13 +43,13 @@ class AuthServiceTest {
                     .build();
 
             when(userRetryClient.existsUserByEmail(EMAIL)).thenReturn(false);
-            when(userRetryClient.getUserIdByEmail(EMAIL)).thenReturn(USER_ID);
+            when(userRetryClient.registerUser(request)).thenReturn(USER_ID);
             when(jwtService.generateToken(EMAIL, USER_ID, ROLE)).thenReturn(TOKEN);
 
             String result = authService.register(request);
 
             assertEquals(TOKEN, result);
-            verify(userRegistrationProducer).send(request);
+            verify(userRetryClient).registerUser(request);
         }
 
         @Test
@@ -97,15 +70,15 @@ class AuthServiceTest {
     class LoginTests {
 
         @Test
-        @DisplayName("Успех: вход через Builder")
+        @DisplayName("Успех: вход с корректными данными")
         void login_Success() {
             LoginRequest request = LoginRequest.builder()
                     .email(EMAIL)
                     .password("password123")
                     .build();
 
-            // По логике вашего кода: false означает, что ошибок нет
-            when(userRetryClient.checkLogin(request)).thenReturn(false);
+            // checkLogin возвращает true когда данные корректны
+            when(userRetryClient.checkLogin(request)).thenReturn(true);
             when(userRetryClient.getUserIdByEmail(EMAIL)).thenReturn(USER_ID);
             when(roleRetryClient.getUserRoleByEmail(EMAIL)).thenReturn(ROLE);
             when(jwtService.generateToken(EMAIL, USER_ID, ROLE)).thenReturn(TOKEN);
@@ -117,14 +90,15 @@ class AuthServiceTest {
         }
 
         @Test
-        @DisplayName("Ошибка: checkLogin вернул true (неверные данные)")
+        @DisplayName("Ошибка: checkLogin вернул false (неверные данные)")
         void login_InvalidCredentials() {
             LoginRequest request = LoginRequest.builder()
                     .email(EMAIL)
                     .password("wrong_pass")
                     .build();
 
-            when(userRetryClient.checkLogin(request)).thenReturn(true);
+            // checkLogin возвращает false когда данные неверны
+            when(userRetryClient.checkLogin(request)).thenReturn(false);
 
             assertThrows(IllegalStateException.class, () -> authService.login(request));
         }
