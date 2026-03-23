@@ -19,12 +19,13 @@ public class AuthService {
         String email = request.getEmail();
 
         if (userRetryClient.existsUserByEmail(email)) {
-            log.error("User with email {} already exists", email);
+            log.warn("Registration attempt with already existing email: {}", email);
             throw new IllegalStateException("User with email " + email + " already exists");
         }
 
         Long userId = userRetryClient.registerUser(request);
-        log.info("User registered successfully with id: {}", userId);
+        log.info("User registered: id={} email={}", userId, email);
+
         return jwtService.generateToken(email, userId, request.getUserRole());
     }
 
@@ -32,11 +33,12 @@ public class AuthService {
         String email = request.getEmail();
 
         if (!userRetryClient.checkLogin(request)) {
-            log.error("Invalid login request");
+            log.warn("Failed login attempt for email: {}", email);
             throw new IllegalStateException("Invalid login request");
         }
 
-        log.info("login request: {}", email);
+        log.info("User logged in successfully: {}", email);
+
         return jwtService.generateToken(
                 email, userRetryClient.getUserIdByEmail(email), roleRetryClient.getUserRoleByEmail(email));
     }

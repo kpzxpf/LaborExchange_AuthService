@@ -1,8 +1,10 @@
 package com.vlz.laborexchange_authservice.service;
 
 import com.vlz.laborexchange_authservice.client.UserServiceClient;
+import com.vlz.laborexchange_authservice.dto.ForgotPasswordRequest;
 import com.vlz.laborexchange_authservice.dto.LoginRequest;
 import com.vlz.laborexchange_authservice.dto.RegisterRequest;
+import com.vlz.laborexchange_authservice.dto.ResetPasswordRequest;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -103,6 +105,51 @@ public class UserRetryClient {
     @Recover
     public boolean recoverCheckLogin(Exception e, LoginRequest loginRequest) {
         log.error("All retry attempts failed for checkLogin. Error: {}", e.getMessage());
+        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "User Service is currently unavailable. Please try again later.");
+    }
+
+    @CircuitBreaker(name = "userService", fallbackMethod = "verifyEmailFallback")
+    @Retryable(
+            retryFor = { Exception.class },
+            maxAttemptsExpression = "${spring.retry.maxAttempts:3}",
+            backoff = @Backoff(delayExpression = "${spring.retry.backoff-delay:2000}")
+    )
+    public void verifyEmail(String token) {
+        userServiceClient.verifyEmail(token);
+    }
+
+    public void verifyEmailFallback(String token, Exception e) {
+        log.warn("UserService circuit breaker open for verifyEmail: {}", e.getMessage());
+        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "User Service is currently unavailable. Please try again later.");
+    }
+
+    @CircuitBreaker(name = "userService", fallbackMethod = "forgotPasswordFallback")
+    @Retryable(
+            retryFor = { Exception.class },
+            maxAttemptsExpression = "${spring.retry.maxAttempts:3}",
+            backoff = @Backoff(delayExpression = "${spring.retry.backoff-delay:2000}")
+    )
+    public void forgotPassword(ForgotPasswordRequest request) {
+        userServiceClient.forgotPassword(request);
+    }
+
+    public void forgotPasswordFallback(ForgotPasswordRequest request, Exception e) {
+        log.warn("UserService circuit breaker open for forgotPassword: {}", e.getMessage());
+        throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "User Service is currently unavailable. Please try again later.");
+    }
+
+    @CircuitBreaker(name = "userService", fallbackMethod = "resetPasswordFallback")
+    @Retryable(
+            retryFor = { Exception.class },
+            maxAttemptsExpression = "${spring.retry.maxAttempts:3}",
+            backoff = @Backoff(delayExpression = "${spring.retry.backoff-delay:2000}")
+    )
+    public void resetPassword(ResetPasswordRequest request) {
+        userServiceClient.resetPassword(request);
+    }
+
+    public void resetPasswordFallback(ResetPasswordRequest request, Exception e) {
+        log.warn("UserService circuit breaker open for resetPassword: {}", e.getMessage());
         throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "User Service is currently unavailable. Please try again later.");
     }
 }

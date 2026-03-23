@@ -1,9 +1,12 @@
 package com.vlz.laborexchange_authservice.controller;
 
+import com.vlz.laborexchange_authservice.dto.ForgotPasswordRequest;
 import com.vlz.laborexchange_authservice.dto.LoginRequest;
 import com.vlz.laborexchange_authservice.dto.RegisterRequest;
 import com.vlz.laborexchange_authservice.dto.AuthResponse;
+import com.vlz.laborexchange_authservice.dto.ResetPasswordRequest;
 import com.vlz.laborexchange_authservice.service.AuthService;
+import com.vlz.laborexchange_authservice.service.UserRetryClient;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -23,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthService authService;
+    private final UserRetryClient userRetryClient;
 
     @Operation(
             summary = "Register a new user",
@@ -70,5 +74,42 @@ public class AuthController {
             @Parameter(description = "JWT token (with or without 'Bearer ' prefix)", required = true)
             @RequestParam String token) {
         return ResponseEntity.ok(authService.validateToken(token));
+    }
+
+    @Operation(summary = "Verify email by token")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Email verified"),
+            @ApiResponse(responseCode = "400", description = "Token invalid"),
+            @ApiResponse(responseCode = "410", description = "Token expired")
+    })
+    @GetMapping("/verify-email")
+    public ResponseEntity<Void> verifyEmail(
+            @Parameter(description = "Verification token", required = true)
+            @RequestParam String token) {
+        userRetryClient.verifyEmail(token);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Request password reset email")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Reset email sent if account exists"),
+            @ApiResponse(responseCode = "404", description = "No account with that email")
+    })
+    @PostMapping("/forgot-password")
+    public ResponseEntity<Void> forgotPassword(@RequestBody @Valid ForgotPasswordRequest request) {
+        userRetryClient.forgotPassword(request);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Reset password using token")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Password reset successfully"),
+            @ApiResponse(responseCode = "400", description = "Token invalid"),
+            @ApiResponse(responseCode = "410", description = "Token expired")
+    })
+    @PostMapping("/reset-password")
+    public ResponseEntity<Void> resetPassword(@RequestBody @Valid ResetPasswordRequest request) {
+        userRetryClient.resetPassword(request);
+        return ResponseEntity.noContent().build();
     }
 }

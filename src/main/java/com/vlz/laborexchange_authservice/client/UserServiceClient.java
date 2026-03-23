@@ -1,7 +1,9 @@
 package com.vlz.laborexchange_authservice.client;
 
+import com.vlz.laborexchange_authservice.dto.ForgotPasswordRequest;
 import com.vlz.laborexchange_authservice.dto.LoginRequest;
 import com.vlz.laborexchange_authservice.dto.RegisterRequest;
+import com.vlz.laborexchange_authservice.dto.ResetPasswordRequest;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,4 +27,13 @@ public interface UserServiceClient {
 
     @GetMapping("/api/users/userIdByEmail")
     Long getUserIdByEmail(@RequestParam("email") String email);
+
+    @GetMapping("/api/users/verify-email")
+    void verifyEmail(@RequestParam("token") String token);
+
+    @PostMapping("/api/users/forgot-password")
+    void forgotPassword(@RequestBody ForgotPasswordRequest request);
+
+    @PostMapping("/api/users/reset-password")
+    void resetPassword(@RequestBody ResetPasswordRequest request);
 }
